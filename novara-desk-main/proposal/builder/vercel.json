@@ -1,0 +1,29 @@
+{
+  "installCommand": "npm install && npm --prefix ../ install",
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/pdf/generate.ts": {
+      "maxDuration": 60,
+      "memory": 2048
+    },
+    "api/client/accept.ts": {
+      "maxDuration": 60,
+      "memory": 2048
+    },
+    "api/proposals/send.ts": {
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "api/ai/analyze-meeting.ts": {
+      "maxDuration": 120
+    },
+    "api/ai/generate-blueprint.ts": {
+      "maxDuration": 120
+    },
+    "api/ai/generate-content.ts": {
+      "maxDuration": 120
+    }
+  }
+}

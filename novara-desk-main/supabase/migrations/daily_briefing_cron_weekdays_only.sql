@@ -1,0 +1,12 @@
+-- Fix (2026-09 Daily Briefing audit): the "invoke-daily-briefing" pg_cron job
+-- (jobid 2) had no day-of-week restriction ("30 5 * * *"), so it fired every
+-- day including Saturday and Sunday -- confirmed by daily_briefing_log rows
+-- present on both weekend dates. The database's own timezone is UTC, and
+-- 05:30 UTC is always the same calendar day as 11:00 IST (no midnight
+-- crossing at this offset), so restricting pg_cron's own day-of-week field
+-- to Mon-Fri here is safe and consistent with the authoritative Asia/Kolkata
+-- weekday check now also enforced inside the daily-briefing edge function
+-- itself (belt-and-suspenders: this stops the invocation from firing at all
+-- on weekends, the in-function check is what actually guarantees correctness
+-- regardless of how/when the function is invoked).
+select cron.alter_job(job_id := 2, schedule := '30 5 * * 1-5');

@@ -1,0 +1,25 @@
+-- ============================================================================
+-- Proposal Acceptance: document content hash (audit trail integrity check)
+-- ============================================================================
+-- `document_version` alone tells you WHICH version was signed, but proving
+-- the content genuinely hasn't changed since needs something stronger than
+-- trusting the version counter was bumped correctly on every edit — a
+-- SHA-256 hash over the document's actual content (pages + variables +
+-- content_overrides, canonically serialized — see
+-- api/_lib/audit/documentHash.ts / src/lib/documentHash.ts) proves
+-- byte-for-byte equality independent of that.
+--
+-- Computed once, server-side, at accept time. The Overview page later
+-- recomputes the hash from the CURRENT document (browser-side, via
+-- crypto.subtle) and compares — a mismatch means the document was edited
+-- after this signature was captured, and the UI must say so plainly
+-- rather than implying the signature still applies.
+--
+-- Nullable: acceptances recorded before this existed have no hash and
+-- must show "integrity check unavailable" rather than a false
+-- unchanged/modified claim either way.
+--
+-- Safe to run multiple times (idempotent). No existing rows are touched.
+-- ============================================================================
+
+ALTER TABLE proposal_builder_acceptances ADD COLUMN IF NOT EXISTS document_hash text;

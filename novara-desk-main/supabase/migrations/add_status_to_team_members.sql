@@ -1,0 +1,18 @@
+-- Team member roster change (2026-09-14): add 3 new hires, offboard Sourav Das.
+-- team_members has no active/inactive concept at all today — removing a member
+-- has historically meant deleting them from the in-memory TEAM array client-side
+-- (deactivateMember() in index.html), which never persisted to the database and
+-- would have permanently orphaned every historical ticket/notification/plan
+-- that references that member's id (gM(id) is a pure TEAM.find — delete the row
+-- and every historical "Assigned: <name>" display breaks, forever, with no way
+-- to recover the name). Sourav Das alone has 92 historical ticket assignments
+-- in the recovery snapshot (see docs from the prior data-recovery audit) plus
+-- 13 live notification rows — deleting his row is not an option.
+--
+-- Mirrors the exact pattern clients.status already uses ('active'/'offboarded')
+-- for the identical problem (see clients table) — not a new permission system,
+-- just the same additive, non-destructive convention applied to team_members.
+-- NULL is impossible (NOT NULL DEFAULT 'active'), so every existing row is
+-- unambiguously 'active' the moment this column exists — zero data migration
+-- needed beyond the one UPDATE for Sourav's row, done separately.
+ALTER TABLE public.team_members ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'active';

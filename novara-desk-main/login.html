@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="logo/favicon.png?v=2">
+<link rel="shortcut icon" type="image/png" href="logo/favicon.png?v=2">
+<link rel="apple-touch-icon" href="logo/favicon.png?v=2">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080c14;
+    --card: #0e1520;
+    --border: rgba(255,255,255,0.07);
+    --accent: #f97316;
+    --accent-dim: rgba(249,115,22,0.15);
+    --accent-glow: rgba(249,115,22,0.35);
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --input-bg: #131c2e;
+    --success: #22c55e;
+    --error: #ef4444;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Atmospheric background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -40%;
+    left: -20%;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(ellipse, rgba(249,115,22,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -40%;
+    right: -20%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(ellipse, rgba(99,102,241,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    animation: drift 15s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes drift {
+    from { transform: translate(0, 0); }
+    to { transform: translate(40px, 30px); }
+  }
+
+  /* Grid pattern overlay */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* Card */
+  .card {
+    position: relative;
+    z-index: 10;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 24px 60px rgba(0,0,0,0.5),
+      0 0 80px rgba(249,115,22,0.04);
+    animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Logo / Brand */
+  .brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+  .brand-logo {
+    height: 15px;
+    width: auto;
+    object-fit: contain;
+    /* Meridian wordmark text is dark — this page's background is dark navy,
+       so the mark needs a light backing plate to stay legible. */
+    background: #fff;
+    border-radius: 6px;
+    padding: 8px 14px;
+    box-sizing: content-box;
+  }
+  .brand-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  /* Tab switcher */
+  .tabs {
+    display: flex;
+    background: var(--input-bg);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 9px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 2px 10px var(--accent-glow);
+  }
+
+  /* Section headings */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .section-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* Input fields */
+  .field {
+    margin-bottom: 14px;
+  }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field input::placeholder { color: #334155; }
+  .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+
+  /* Primary button */
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+  .btn-primary:hover {
+    background: #ea6c0a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px var(--accent-glow);
+  }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Loading spinner inside button */
+  .btn-primary .spinner {
+    display: none;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto;
+  }
+  .btn-primary.loading .btn-text { display: none; }
+  .btn-primary.loading .spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Alert / Toast */
+  .alert {
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 13px;
+    margin-top: 14px;
+    display: none;
+    animation: fadeIn 0.25s ease;
+    line-height: 1.5;
+  }
+  .alert.show { display: block; }
+  .alert.success { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25); color: #86efac; }
+  .alert.error   { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.25);  color: #fca5a5; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Magic link note */
+  .magic-note {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+  .magic-note span { color: var(--accent); }
+
+  /* Form panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+
+<div class="card">
+
+  <!-- Brand — logo only per rebrand; no adjacent text label -->
+  <div class="brand">
+    <img src="logo/meridian.png" alt="Meridian" class="brand-logo">
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+    <button class="tab-btn" onclick="switchTab('register')">Register</button>
+    <button class="tab-btn" onclick="switchTab('magic')">Magic Link</button>
+  </div>
+
+  <!-- LOGIN PANEL -->
+  <div class="panel active" id="panel-login">
+    <div class="section-title">Welcome back</div>
+    <div class="section-sub">Sign in to your account.</div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="you@example.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" id="loginBtn">
+      <span class="btn-text">Sign In</span>
+      <div class="spinner"></div>
+    </button>
+    <div class="alert" id="login-alert"></div>
+  </div>
+
+  <!-- REGISTER PANEL -->
+  <div class="panel" id="panel-register">
+    <div class="section-title">Create account</div>
+    <div class="section-sub">Create your account — it's quick.</div>
+
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" id="reg-name" placeholder="Aryan Sharma">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="reg-email" placeholder="you@example.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="reg-password" placeholder="Min. 6 characters">
+    </div>
+    <button class="btn-primary" id="registerBtn">
+      <span class="btn-text">Create Account</span>
+      <div class="spinner"></div>
+    </button>
+    <div class="alert" id="reg-alert"></div>
+  </div>
+
+  <!-- MAGIC LINK PANEL -->
+  <div class="panel" id="panel-magic">
+    <div class="section-title">Passwordless login</div>
+    <div class="section-sub">We'll send a secure link to your inbox — no password needed.</div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="magic-email" placeholder="you@example.com">
+    </div>
+    <button class="btn-primary" id="magicBtn">
+      <span class="btn-text">Send Magic Link</span>
+      <div class="spinner"></div>
+    </button>
+    <div class="alert" id="magic-alert"></div>
+    <div class="magic-note">Check your inbox after clicking. Link expires in <span>10 minutes</span>.</div>
+  </div>
+
+</div>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"
+  onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'"></script>
+<script>
+  // Tab switching — global scope so onclick attributes can reach it
+  function switchTab(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+window.addEventListener('load', function() {
+  const supabase = window.supabase.createClient(
+    "https://lftrnhxzdzqyrvazvpdo.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmdHJuaHh6ZHpxeXJ2YXp2cGRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNDUyMDEsImV4cCI6MjA5MDYyMTIwMX0._lfmUl8H3eyWiLoyInVSqDNdNpamWWeFzOTqdU5smLo"
+  );
+
+  // Utility: show alert
+  function showAlert(id, msg, type) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'alert show ' + type;
+  }
+  function clearAlert(id) {
+    const el = document.getElementById(id);
+    el.className = 'alert';
+  }
+
+  // Utility: button loading state
+  function setLoading(btn, loading) {
+    if (loading) btn.classList.add('loading'), btn.disabled = true;
+    else btn.classList.remove('loading'), btn.disabled = false;
+  }
+
+  // ── ALLOWED EMAILS WHITELIST ──
+  const ALLOWED_EMAILS = [
+    'vvishwakarma@novaraconsult.co.uk',
+    'smondal@novaraconsult.co.uk',
+    'amishra@novaraconsult.co.uk',
+    'hdas@novaraconsult.co.uk',
+    'mbhowmik@novaraconsult.co.uk',
+    'schatterjee@novaraconsult.co.uk',
+    'sjaswani@novaraconsult.co.uk',
+    'j@novaraconsult.co.uk',
+    'sdey@novaraconsult.co.uk',
+    'rbhattacharya@novaraconsult.co.uk',
+    'szahra@novaraconsult.co.uk',
+    'rkprasad@novaraconsult.co.uk',
+    'yayaz@novaraconsult.co.uk',
+    'rjain@novaraconsult.co.uk',
+    'gchakraborty@novaraconsult.co.uk',
+    'ajhunjhunwala@novaraconsult.co.uk',
+  ];
+  function isAllowed(email) {
+    return ALLOWED_EMAILS.includes(email.toLowerCase().trim());
+  }
+
+  // LOGIN
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('loginBtn');
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    clearAlert('login-alert');
+
+    if (!email || !password) { showAlert('login-alert', 'Please fill in all fields.', 'error'); return; }
+    if (!isAllowed(email)) { showAlert('login-alert', '⛔ Access denied. This email is not authorised.', 'error'); return; }
+
+    setLoading(btn, true);
+    try {
+      // 10s timeout — prevents infinite loading if Supabase is unreachable
+      const loginPromise = supabase.auth.signInWithPassword({ email, password });
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000));
+      const { error } = await Promise.race([loginPromise, timeout]);
+      setLoading(btn, false);
+      if (error) {
+        const msg = (error.message || '').toLowerCase();
+        if (msg.includes('fetch') || msg.includes('network') || msg.includes('failed')) {
+          showAlert('login-alert', '⚠ Cannot reach server. Your Supabase project may be paused — check supabase.com/dashboard and click Restore.', 'error');
+        } else {
+          showAlert('login-alert', error.message, 'error');
+        }
+      } else {
+        window.location.replace('/index.html');
+      }
+    } catch (e) {
+      setLoading(btn, false);
+      if (e.message === 'timeout') {
+        showAlert('login-alert', '⚠ Request timed out. Check your internet, or your Supabase project may be paused at supabase.com/dashboard.', 'error');
+      } else {
+        showAlert('login-alert', 'Login failed: ' + (e.message || 'Unknown error'), 'error');
+      }
+    }
+  });
+
+  // REGISTER
+  document.getElementById('registerBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('registerBtn');
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    clearAlert('reg-alert');
+
+    if (!name || !email || !password) { showAlert('reg-alert', 'Please fill in all fields.', 'error'); return; }
+    if (password.length < 6) { showAlert('reg-alert', 'Password must be at least 6 characters.', 'error'); return; }
+    if (!isAllowed(email)) { showAlert('reg-alert', '⛔ Access denied. This email is not authorised to register.', 'error'); return; }
+
+    setLoading(btn, true);
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: 'https://novara-desk.vercel.app/index.html'
+      }
+    });
+    setLoading(btn, false);
+
+    if (error) {
+      showAlert('reg-alert', error.message, 'error');
+    } else {
+      showAlert('reg-alert', '✓ Account created! You can now sign in.', 'success');
+    }
+  });
+
+  // MAGIC LINK
+  document.getElementById('magicBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('magicBtn');
+    const email = document.getElementById('magic-email').value.trim();
+    clearAlert('magic-alert');
+
+    if (!email) { showAlert('magic-alert', 'Please enter your email.', 'error'); return; }
+    if (!isAllowed(email)) { showAlert('magic-alert', '⛔ Access denied. This email is not authorised.', 'error'); return; }
+
+    setLoading(btn, true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: 'https://novara-desk.vercel.app/index.html' }
+      });
+      setLoading(btn, false);
+      if (error) {
+        showAlert('magic-alert', error.message, 'error');
+      } else {
+        showAlert('magic-alert', '✓ Magic link sent! Check your inbox.', 'success');
+      }
+    } catch (e) {
+      setLoading(btn, false);
+      showAlert('magic-alert', 'Request failed. Please try again.', 'error');
+    }
+  });
+
+  // Auto redirect if already logged in
+  (async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session && isAllowed(data.session.user.email)) {
+      window.location.replace('/index.html');
+      return;
+    }
+    document.body.style.display = "flex";
+  })();
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      if (!isAllowed(session.user.email)) {
+        supabase.auth.signOut();
+        return;
+      }
+      window.location.replace('/index.html');
+    }
+  });
+}); // end window.onload
+</script>
+</body>
+</html>

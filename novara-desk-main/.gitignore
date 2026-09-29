@@ -1,0 +1,12 @@
+.claude/
+node_modules/
+.env
+.env.local
+.vercel/
+
+# Proposal project + Proposal Builder (Vite build output — regenerated on build, never source)
+proposal/dist/
+proposal/builder/dist/
+.DS_Store
+.vercel
+.env*
